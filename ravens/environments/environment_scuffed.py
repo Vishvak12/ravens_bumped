@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Ravens Authors.
+# Copyright 2023 The Ravens Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import pybullet as p
 PLACE_STEP = 0.0003
 PLACE_DELTA_THRESHOLD = 0.005
 
-UR5_URDF_PATH = 'ur5/ur5.urdf'
-UR5_WORKSPACE_URDF_PATH = 'ur5/workspace.urdf'
+UR10_URDF_PATH = "ur10/ur10_robot_final.urdf"
+UR10_WORKSPACE_URDF_PATH = 'ur10/workspace.urdf'
 PLANE_URDF_PATH = 'plane/plane.urdf'
 
 
@@ -47,7 +47,7 @@ class Environment(gym.Env):
                task=None,
                disp=False,
                shared_memory=False,
-               hz=240,
+               hz=120,
                use_egl=False):
     """Creates OpenAI Gym-style environment with PyBullet.
 
@@ -65,11 +65,11 @@ class Environment(gym.Env):
       RuntimeError: if pybullet cannot load fileIOPlugin.
     """
     if use_egl and disp:
-      raise ValueError('EGL rendering cannot be used with `disp=True`.')
+      raise ValueError('EGL rendering cannot be used with disp=True.')
 
     self.pix_size = 0.003125
     self.obj_ids = {'fixed': [], 'rigid': [], 'deformable': []}
-    self.homej = np.array([-1, -0.5, 0.5, -0.5, -0.5, 0]) * np.pi
+    self.homej = np.array([-1, -0.5, 0.5, -0.5, -0.5,0]) * np.pi
     self.agent_cams = cameras.RealSenseD415.CONFIG
 
     self.assets_root = assets_root
@@ -191,12 +191,12 @@ class Environment(gym.Env):
     pybullet_utils.load_urdf(p, os.path.join(self.assets_root, PLANE_URDF_PATH),
                              [0, 0, -0.001])
     pybullet_utils.load_urdf(
-        p, os.path.join(self.assets_root, UR5_WORKSPACE_URDF_PATH), [0.5, 0, 0])
+        p, os.path.join(self.assets_root, UR10_WORKSPACE_URDF_PATH), [0.5, 0, 0])
 
     # Load UR5 robot arm equipped with suction end effector.
     # TODO(andyzeng): add back parallel-jaw grippers.
     self.ur5 = pybullet_utils.load_urdf(
-        p, os.path.join(self.assets_root, UR5_URDF_PATH))
+        p, os.path.join(self.assets_root, UR10_URDF_PATH))
     self.ee = self.task.ee(self.assets_root, self.ur5, 9, self.obj_ids)
     self.ee_tip = 10  # Link ID of suction cup.
 
@@ -416,7 +416,7 @@ class EnvironmentNoRotationsWithHeightmap(Environment):
                shared_memory=False,
                hz=240):
     super(EnvironmentNoRotationsWithHeightmap,
-          self).__init__(assets_root, task, disp, shared_memory, hz)
+          self).___init___(assets_root, task, disp, shared_memory, hz)
 
     heightmap_tuple = [
         gym.spaces.Box(0.0, 20.0, (320, 160, 3), dtype=np.float32),
@@ -463,11 +463,11 @@ class EnvironmentNoRotationsWithHeightmap(Environment):
 class ContinuousEnvironment(Environment):
   """A continuous environment."""
 
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
+  def _init_(self, *args, **kwargs):
+    super()._init_(*args, **kwargs)
 
     # Redefine action space, assuming it's a suction-based task. We'll override
-    # it in `reset()` if that is not the case.
+    # it in reset() if that is not the case.
     self.position_bounds = gym.spaces.Box(
         low=np.array([-1.0, -1.0, -1.0], dtype=np.float32),
         high=np.array([1.0, 1.0, 1.0], dtype=np.float32),

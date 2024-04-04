@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Ravens Authors.
+# Copyright 2023 The Ravens Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,22 +21,22 @@ import pickle
 from absl import app
 from absl import flags
 import numpy as np
-from ravens import agents
-from ravens import dataset
-from ravens import tasks
-from ravens.environments.environment import Environment
+import agents
+import dataset
+import tasks
+from environments.environment_scuffed import Environment
 import tensorflow as tf
 
-flags.DEFINE_string('root_dir', '.', '')
-flags.DEFINE_string('data_dir', '.', '')
-flags.DEFINE_string('assets_root', './assets/', '')
+flags.DEFINE_string('root_dir', '', '')
+flags.DEFINE_string('data_dir', '', '')
+flags.DEFINE_string('assets_root', 'ravens/environments/assets', '')
 flags.DEFINE_bool('disp', False, '')
 flags.DEFINE_bool('shared_memory', False, '')
 flags.DEFINE_string('task', 'hanoi', '')
 flags.DEFINE_string('agent', 'transporter', '')
-flags.DEFINE_integer('n_demos', 100, '')
-flags.DEFINE_integer('n_steps', 40000, '')
-flags.DEFINE_integer('n_runs', 1, '')
+flags.DEFINE_integer('n_demos', 10, '')
+flags.DEFINE_integer('n_steps', 1000, '')
+flags.DEFINE_integer('n_runs', 10, '')
 flags.DEFINE_integer('gpu', 0, '')
 flags.DEFINE_integer('gpu_limit', None, '')
 
@@ -56,7 +56,7 @@ def main(unused_argv):
   if FLAGS.gpu_limit is not None:
     mem_limit = 1024 * FLAGS.gpu_limit
     dev_cfg = [cfg.VirtualDeviceConfiguration(memory_limit=mem_limit)]
-    cfg.set_virtual_device_configuration(gpus[0], dev_cfg)
+    cfg.set_virtual_device_configuration(gpus[1], dev_cfg)
 
   # Initialize environment and task.
   env = Environment(
